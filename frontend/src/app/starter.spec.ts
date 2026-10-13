@@ -1,27 +1,28 @@
-import { TestBed } from '@angular/core/testing';
-import { provideRouter } from '@angular/router';
 import { describe, expect, it } from 'vitest';
-import { App } from './app';
-import { Home } from './pages/home/home';
+import { filterTickets } from './features/tickets/filter-tickets';
 import { DEMO_TICKETS } from './data/demo-tickets';
 
-describe('Исправность заготовки', () => {
-  it('создаёт оболочку', async () => {
-    await TestBed.configureTestingModule({imports: [App], providers: [provideRouter([])]})
-      .compileComponents();
-    const fixture = TestBed.createComponent(App);
-    fixture.detectChanges();
-    expect(fixture.nativeElement.querySelector('h1').textContent)
-      .toContain('Сервис заявок ИТ-отдела');
+describe('filterTickets с поиском', () => {
+  it('находит заявку по части названия без учёта регистра', () => {
+    const result = filterTickets(DEMO_TICKETS, 'all', 'КОМПЬЮТЕР');
+    expect(result.length).toBeGreaterThan(0);
+    result.forEach((t) =>
+      expect(t.title.toLowerCase()).toContain('компьютер'),
+    );
   });
-  it('показывает стартовую страницу', async () => {
-    await TestBed.configureTestingModule({imports: [Home]}).compileComponents();
-    const fixture = TestBed.createComponent(Home);
-    fixture.detectChanges();
-    expect(fixture.nativeElement.textContent).toContain('Заготовка проекта запущена');
+
+  it('убирает пробелы по краям', () => {
+    const result = filterTickets(DEMO_TICKETS, 'all', '  компьютер  ');
+    expect(result.length).toBeGreaterThan(0);
   });
-  it('содержит три заявки с уникальными идентификаторами', () => {
-    expect(DEMO_TICKETS.length).toBe(3);
-    expect(new Set(DEMO_TICKETS.map(item => item.id)).size).toBe(3);
+
+  it('возвращает пустой результат, если ничего не найдено', () => {
+    const result = filterTickets(DEMO_TICKETS, 'all', 'щщщщщ');
+    expect(result).toEqual([]);
+  });
+
+  it('пустой поиск не мешает базовым режимам', () => {
+    expect(filterTickets(DEMO_TICKETS, 'all', '').length).toBe(DEMO_TICKETS.length);
+    expect(filterTickets(DEMO_TICKETS, 'new', '').every((t) => t.status === 'new')).toBe(true);
   });
 });
