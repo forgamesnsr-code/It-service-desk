@@ -76,3 +76,8 @@ def test_transaction_rollback_when_event_fails(app, client, monkeypatch):
     old = client.get('/api/tickets/1').json
     assert client.patch('/api/tickets/1', json={'status':'closed'}).status_code == 500
     assert client.get('/api/tickets/1').json == old
+    
+def test_custom_filter_and_search(client):
+    response = client.get('/api/tickets?status=in_progress&q=проектор')
+    assert response.status_code == 200
+    assert len(response.json) == 1
