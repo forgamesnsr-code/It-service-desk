@@ -77,7 +77,11 @@ class MysqlRepository:
             params.append("closed")
         if q:
             conditions.append("t.title LIKE %s ESCAPE '='")
+<<<<<<< HEAD
             literal = q.replace("=", "==").replace("%", "=%").replace("_", "=_")
+=======
+            literal = q.replace("=", "==").replace("%", "=%").replace("-", "=")
+>>>>>>> 7696cfc0739ea86f9e7eb4154bbdeb02359d878c
             params.append("%" + literal + "%")
         
         sql = SELECT_TICKET
